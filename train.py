@@ -31,7 +31,6 @@ from sb3_contrib import MaskablePPO
 from stable_baselines3.common.callbacks import (
     BaseCallback,
     CheckpointCallback,
-    EvalCallback,
 )
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.vec_env import DummyVecEnv
@@ -127,7 +126,6 @@ def main() -> None:
     os.makedirs("models/checkpoints", exist_ok=True)
 
     env = DummyVecEnv([make_env(args.shaping) for _ in range(args.n_envs)])
-    eval_env = BlockBlastEnv(shaping_coef=0.0)
 
     policy_kwargs = dict(
         features_extractor_class=BlockBlastCNN,
@@ -170,14 +168,6 @@ def main() -> None:
             save_freq=max(50_000 // args.n_envs, 1),
             save_path="models/checkpoints/",
             name_prefix="bb",
-        ),
-        EvalCallback(
-            eval_env,
-            best_model_save_path="models/best/",
-            log_path="logs/eval/",
-            eval_freq=max(25_000 // args.n_envs, 1),
-            n_eval_episodes=20,
-            deterministic=True,
         ),
     ]
 
